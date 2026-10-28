@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub | My Dashboard</title>
+  <style>
+    /* basic layout for the LMS dashboard. pure HTML structure + my own CSS */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f5f9;
+      color: #222;
+      font-size: 15px;
+    }
+    a { color: #2453a6; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    /* sidebar */
+    .sidebar {
+      background: #1d2b45;
+      color: #dfe6f3;
+      padding: 20px 0;
+    }
+    .sidebar .brand {
+      font-size: 1.3rem;
+      font-weight: bold;
+      padding: 0 20px 20px;
+      color: #fff;
+    }
+    .sidebar nav ul { list-style: none; margin: 0; padding: 0; }
+    .sidebar nav a {
+      display: block;
+      padding: 10px 20px;
+      color: #dfe6f3;
+      text-decoration: none;
+    }
+    .sidebar nav a:hover { background: #26395e; }
+    .sidebar nav a[aria-current="page"] {
+      background: #2f4a7a;
+      color: #fff;
+      border-left: 4px solid #f5b841;
+      padding-left: 16px;
+    }
+    .sidebar h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8fa1c4;
+      padding: 18px 20px 6px;
+      margin: 0;
+    }
+
+    /* main area */
+    .main {
+      padding: 24px 28px;
+    }
+    header.topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    header.topbar h1 { font-size: 1.5rem; margin: 0; }
+    .search input {
+      padding: 8px 10px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      width: 240px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: #fff;
+      border-radius: 6px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .stat .num { font-size: 1.6rem; font-weight: bold; color: #1d2b45; }
+    .stat .label { color: #666; font-size: 0.85rem; }
+
+    .layout-2col {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 22px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 6px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      margin-bottom: 22px;
+    }
+    .panel h2 { font-size: 1.1rem; margin: 0 0 12px; }
+
+    /* course progress */
+    .course {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .course:last-child { border-bottom: none; }
+    .course .icon {
+      width: 56px;
+      height: 56px;
+      background: #dfe6f3;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #1d2b45;
+    }
+    .course h3 { font-size: 0.98rem; margin: 0 0 2px; }
+    .course .meta { color: #777; font-size: 0.82rem; margin-bottom: 6px; }
+    .progress {
+      height: 8px;
+      background: #e5e9f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      background: #2c8c5a;
+    }
+    .progress-label { font-size: 0.8rem; color: #555; margin-top: 4px; }
+
+    /* video lesson area */
+    .video-box {
+      background: #000;
+      border-radius: 4px;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      position: relative;
+    }
+    .video-box .play {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+    .video-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .video-controls button {
+      background: #1d2b45;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .video-controls button:focus-visible,
+    .sidebar a:focus-visible,
+    .search input:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #f5b841;
+      outline-offset: 2px;
+    }
+
+    .lesson-list { list-style: none; padding: 0; margin: 0; }
+    .lesson-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.92rem;
+    }
+    .lesson-list li.done .title::before { content: "✓ "; color: #2c8c5a; font-weight: bold; }
+    .lesson-list li.current .title { font-weight: bold; color: #1d2b45; }
+    .tag {
+      font-size: 0.75rem;
+      background: #eef2f8;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: #444;
+    }
+
+    .assignments {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .assignments li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+    .due { color: #b03a2e; font-size: 0.8rem; }
+
+    footer.foot {
+      text-align: center;
+      color: #888;
+      font-size: 0.8rem;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { padding: 10px 0; }
+      .sidebar nav ul { display: flex; flex-wrap: wrap; }
+      .sidebar nav a { padding: 8px 12px; }
+      .layout-2col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#content" class="sr-only" style="position:absolute;left:-999px;">Skip to content</a>
+
+<div class="app">
+
+  <!-- sidebar navigation -->
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="brand">LearnHub</div>
+    <nav aria-label="Dashboard">
+      <ul>
+        <li><a href="#" aria-current="page">Dashboard</a></li>
+        <li><a href="#">My courses</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Messages</a></li>
+        <li><a href="#">Grades</a></li>
+      </ul>
+    </nav>
+    <h2>Categories</h2>
+    <nav aria-label="Categories">
+      <ul>
+        <li><a href="#">Web development</a></li>
+        <li><a href="#">Data analysis</a></li>
+        <li><a href="#">Business</a></li>
+        <li><a href="#">Design</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main" id="content">
+
+    <header class="topbar">
+      <h1>Welcome back, Justus</h1>
+      <div class="search">
+        <label for="course-search" class="sr-only" style="position:absolute;left:-999px;">Search my courses</label>
+        <input type="search" id="course-search" placeholder="Search my courses">
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Summary">
+      <div class="stat"><div class="num">4</div><div class="label">Courses enrolled</div></div>
+      <div class="stat"><div class="num">2</div><div class="label">Completed</div></div>
+      <div class="stat"><div class="num">38 hrs</div><div class="label">Learning time</div></div>
+      <div class="stat"><div class="num">3</div><div class="label">Assignments due</div></div>
+    </section>
+
+    <div class="layout-2col">
+
+      <div>
+        <section class="panel" aria-labelledby="progress-title">
+          <h2 id="progress-title">My course progress</h2>
+
+          <div class="course">
+            <div class="icon" aria-hidden="true">HTML</div>
+            <div>
+              <h3>Front-End Web Basics</h3>
+              <p class="meta">Instructor: D. · 12 lessons</p>
+              <div class="progress" role="progressbar" aria-label="Front-End Web Basics progress" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"><span style="width:75%"></span></div>
+              <p class="progress-label">75% complete</p>
+            </div>
+          </div>
+
+          <div class="course">
+            <div class="icon" aria-hidden="true">JS</div>
+            <div>
+              <h3>JavaScript for Beginners</h3>
+              <p class="meta">Instructor: A. · 18 lessons</p>
+              <div class="progress" role="progressbar" aria-label="JavaScript for Beginners progress" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"><span style="width:40%"></span></div>
+              <p class="progress-label">40% complete</p>
+            </div>
+          </div>
+
+          <div class="course">
+            <div class="icon" aria-hidden="true">XL</div>
+            <div>
+              <h3>Excel for Data Analysis</h3>
+              <p class="meta">Instructor: R. · 10 lessons</p>
+              <div class="progress" role="progressbar" aria-label="Excel for Data Analysis progress" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><span style="width:100%"></span></div>
+              <p class="progress-label">Completed</p>
+            </div>
+          </div>
+
+          <div class="course">
+            <div class="icon" aria-hidden="true">UX</div>
+            <div>
+              <h3>Intro to UX Design</h3>
+              <p class="meta">Instructor: K. · 9 lessons</p>
+              <div class="progress" role="progressbar" aria-label="Intro to UX Design progress" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"><span style="width:10%"></span></div>
+              <p class="progress-label">10% complete</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="now-title">
+          <h2 id="now-title">Now playing: Front-End Web Basics</h2>
+
+          <div class="video-box" role="region" aria-label="Lesson video placeholder">
+            <div class="play" aria-hidden="true">▶</div>
+          </div>
+          <div class="video-controls">
+            <button type="button">Play</button>
+            <button type="button">Pause</button>
+            <span>Lesson 9 of 12 · 06:42 / 14:10</span>
+          </div>
+          <h3 style="margin-top:14px;font-size:1rem;">Lesson 9: Forms and labels</h3>
+          <p style="color:#555;font-size:0.9rem;">In this lesson we go through how to link a label to its input, why placeholder text is not a replacement for a label, and how to group related fields.</p>
+        </section>
+      </div>
+
+      <div>
+        <section class="panel" aria-labelledby="lessons-title">
+          <h2 id="lessons-title">Lessons in this course</h2>
+          <ol class="lesson-list">
+            <li class="done"><span class="title">1. Intro and setup</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">2. Document structure</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">3. Headings and text</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">4. Lists</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">5. Links</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">6. Images</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">7. Tables</span><span class="tag">Done</span></li>
+            <li class="done"><span class="title">8. Semantic tags</span><span class="tag">Done</span></li>
+            <li class="current"><span class="title">9. Forms and labels</span><span class="tag">Now</span></li>
+            <li><span class="title">10. Accessibility basics</span><span class="tag">Locked</span></li>
+            <li><span class="title">11. Final project brief</span><span class="tag">Locked</span></li>
+            <li><span class="title">12. Review quiz</span><span class="tag">Locked</span></li>
+          </ol>
+        </section>
+
+        <section class="panel" aria-labelledby="due-title">
+          <h2 id="due-title">Upcoming deadlines</h2>
+          <ul class="assignments">
+            <li>Quiz 3: Semantic tags<br><span class="due">Due Wed 28 Oct, 11:59pm</span></li>
+            <li>Mini project: Landing page<br><span class="due">Due Fri 30 Oct, 11:59pm</span></li>
+            <li>Peer review: Portfolio draft<br><span class="due">Due Mon 2 Nov</span></li>
+          </ul>
+        </section>
+      </div>
+
+    </div>
+
+    <footer class="foot">
+      LearnHub student dashboard ° &copy; 2026
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>
